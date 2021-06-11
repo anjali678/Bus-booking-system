@@ -84,8 +84,11 @@ class UserController extends Controller
         $user = User::find($id);
        
         if ($request->new_password==$request->confirm_password) {
-            $user->password = $request->new_password;
+            $user->password = Hash::make($request->new_password);
+            $user->setRememberToken(Str::random(60));
             $user->save();
+            event(new PasswordReset($user));
+            $this->guard()->login($user);
             return response()->json(["msg" => "Password has been successfully changed"]);
         }else{
         return response()->json(["msg" => "wrong"]);}
