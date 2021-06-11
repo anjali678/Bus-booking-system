@@ -81,27 +81,22 @@ class UserController extends Controller
         // Will return only validated data
         $validated = $request->validated();
 
-        $user= User::find($id);
-        if(!$user){
-          return response()->json([
-             'message'=>'user Not Found.'
-          ],404);
-        }
-        if ($user->password==$request->old_password && $request->new_password==$request->confirm_password) {
+        $user = User::find($id);
+       
+        if ($request->new_password==$request->confirm_password) {
+            $user->password = $request->new_password;
+            $user->save();
             return response()->json(["msg" => "Password has been successfully changed"]);
-        }
-        $user->password = $request->new_password
-        $user->save();
-
-        return response()->json(["msg" => "wrong"]);
+        }else{
+        return response()->json(["msg" => "wrong"]);}
     }
 
 
     /**Check bus schedule list**/
     public function bus_schedule_list(){
         // All Bus schedules
-        $bus = Bus_schedule::with('getBus_routeRelation','getBus_routeRelation.getRouteRelation','getBus_routeRelation.getBusRelation')->select('direction','start_timestamp','end_timestamp');
-        dd($bus);
+        $bus = Bus_schedule::all();
+    
         // Return Json Response
        return response()->json([
           'buses' => $bus
@@ -117,4 +112,27 @@ class UserController extends Controller
           'bookings' => $bookings
        ],200);
     }
+
+
+    /**cancel bookings before 10hrs**/
+    public function cancel_bookings($id){
+        // Bus_schedule_booking Detail 
+        $bus_schedule_booking = Bus_schedule_booking::find($id);
+        $start = time('H:i:s');
+        $current_time = time('H:i:s',strtotime('+10 hour',strtotime($start)));
+        if($bus_schedule_booking->start_timestamp==$current_time){
+          return response()->json([
+             'message'=>'can not delete.'
+          ],404);
+        }
+
+        // Delete Bus_schedule_booking
+        $bus_schedule_booking->delete();
+
+        // Return Json Response
+        return response()->json([
+            'message' => "Bus booking successfully deleted."
+        ],200);
+    }
+
 }

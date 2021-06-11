@@ -29,11 +29,13 @@ Route::group(['middleware'=>['auth:sanctum']],function(){
 	Route::get("/user",[UserController::class,'getUser']);  //get User
 	Route::post("/logout",[UserController::class,'logout']);  //User logout
 });
-Route::post("/resetPassword/{id}",[UserController::class,'resetPassword']);  //reset password
+Route::put("resetPassword/{id}",[UserController::class,'resetPassword']);  //reset password
 
 
 Route::get("/bus_schedule_list",[UserController::class,'bus_schedule_list']);  //get bus schedule list
 Route::get("/get_my_bookings/{user_id}",[UserController::class,'my_bookings']);  //get my bookings
+Route::delete("/cancel_bookings/{id}",[UserController::class,'cancel_bookings']);  //cancel my bookings
+
 
 
 /*********book schedule************/
